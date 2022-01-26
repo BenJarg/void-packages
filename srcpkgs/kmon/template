@@ -1,0 +1,17 @@
+# Template file for 'kmon'
+pkgname=kmon
+version=1.6.3
+revision=1
+build_style=cargo
+hostmakedepends="python3"
+makedepends="libxcb-devel"
+short_desc="Text-based user interface for managing kernel modules"
+maintainer="Ben Jargowsky <benjar63@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://kmon.cli.rs/"
+distfiles="https://github.com/orhun/kmon/archive/refs/tags/v${version}.tar.gz"
+checksum=21385cffaf52dabe3b01ab2f5c9295c3877dfb2bfcf82ba1ce1bbc53e366d9c9
+
+post_install() {
+	vman target/x86_64-unknown-linux-gnu/man/kmon.8
+}
