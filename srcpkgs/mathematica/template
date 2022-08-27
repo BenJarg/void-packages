@@ -1,0 +1,45 @@
+# Template file for 'mathematica'
+pkgname=mathematica
+version=12.0.0
+revision=1
+hostmakedepends="tar xz"
+short_desc="Computational Software System"
+maintainer="Ben Jargowsky <benjar63@gmail.com>"
+license="custom:Proprietary"
+homepage="https://www.wolfram.com/mathematica/"
+noshlibprovides=yes
+noverifyrdeps=yes
+nopie=yes
+nostrip=yes
+
+build_options="nodocs"
+build_options_default="nodocs"
+
+_M_BINARIES="MathKernel Mathematica WolframKernel math mathematica mcc wolfram"
+
+do_build() {
+	cp ${FILESDIR}/Mathematica_${version}_LINUX.sh ./
+	sh Mathematica_${version}_LINUX.sh -- \
+			-execdir=${DESTDIR}/usr/bin \
+			-targetdir=${DESTDIR}/opt/Mathematica \
+			-auto -verbose
+}
+
+do_install() {
+	chmod -R go-w ${DESTDIR}/*
+	vlicense ${DESTDIR}/opt/Mathematica/LICENSE.txt
+	$(vopt_if nodocs "rm -rf ${DESTDIR}/opt/Mathematica/Documentation")
+	cd ${DESTDIR}/opt/Mathematica
+	find AddOns SystemFiles -type d -\( -name Windows -o -name Windows-x86-64 \
+			-o -name MacOSX -o -name MacOSX-x86-64 -\) -exec rm -rv {} +
+	cd ${DESTDIR}/opt/Mathematica/Executables
+	rm wolframscript
+	ln -s /opt/Mathematica/SystemFiles/Kernel/Binaries/Linux-x86-64/wolframscript
+	cd ${DESTDIR}/usr/bin
+	rm *
+	for _i in ${_M_BINARIES}; do
+		ln -s /opt/Mathematica/Executables/$_i
+	done
+	ln -s /opt/Mathematica/SystemFiles/Kernel/Binaries/Linux-x86-64/ELProver
+	ln -s /opt/Mathematica/SystemFiles/Kernel/Binaries/Linux-x86-64/wolframscript
+}
