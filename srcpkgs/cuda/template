@@ -1,0 +1,38 @@
+# Template file for 'cuda'
+pkgname=cuda
+version=11.7.1
+revision=1
+archs="x86_64"
+create_wrksrc=yes
+hostmakedepends="tar xz libxml2"
+depends="nvidia-dkms nvidia-libs"
+short_desc="Platform for GPU-based parallel computing from NVIDIA"
+maintainer="Ben Jargowsky <benjar63@gmail.com>"
+license="custom:NVIDIA Proprietary"
+homepage="https://developer.nvidia.com/cuda-toolkit"
+_pkg="cuda_${version}_515.65.01_linux"
+distfiles="https://developer.download.nvidia.com/compute/cuda/${version}/local_installers/${_pkg}.run"
+checksum=52286a29706549b7d0feeb0e7e3eca1b15287c436a69fa880ad385b1be3e04db
+repository="nonfree"
+noshlibprovides=yes
+noverifyrdeps=yes
+nopie=yes
+nostrip=yes
+python_version=3
+
+do_extract() {
+	install -m755 ${XBPS_SRCDISTDIR}/${pkgname}-${version}/${_pkg}.run ${wrksrc}
+	cd ${wrksrc}
+	mkdir cuda
+	sh ${_pkg}.run --silent --installpath=${wrksrc}/cuda/ --no-drm --no-opengl-libs --toolkit --override --no-man-page
+	rm ${_pkg}.run
+}
+
+do_install() {
+	mkdir ${DESTDIR}/opt/
+	cp -r ./cuda ${DESTDIR}/opt/cuda/
+	rm /usr/local/cuda
+	rm ${DESTDIR}/opt/cuda/bin/cuda-uninstaller
+	sed -i 's|/builddir/cuda-${version}|/opt|g' ${DESTDIR}/opt/cuda/pkgconfig/*
+	vlicense ${DESTDIR}/opt/cuda/EULA.txt
+}
