@@ -1,0 +1,22 @@
+diff --git a/helix-term/src/application.rs b/helix-term/src/application.rs
+index c0cbc245..65830c58 100644
+--- a/helix-term/src/application.rs
++++ b/helix-term/src/application.rs
+@@ -255,7 +255,7 @@ pub fn new(
+         #[cfg(windows)]
+         let signals = futures_util::stream::empty();
+         #[cfg(not(windows))]
+-        let signals = Signals::new([signal::SIGTSTP, signal::SIGCONT, signal::SIGUSR1])
++        let signals = Signals::new([signal::SIGTSTP, signal::SIGCONT, signal::SIGUSR1, signal::SIGWINCH])
+             .context("build signal handler")?;
+ 
+         let app = Self {
+@@ -472,7 +472,7 @@ pub async fn handle_signals(&mut self, signal: i32) {
+                 restore_term().unwrap();
+                 low_level::emulate_default_handler(signal::SIGTSTP).unwrap();
+             }
+-            signal::SIGCONT => {
++            signal::SIGCONT | signal::SIGWINCH => {
+                 self.claim_term().await.unwrap();
+                 // redraw the terminal
+                 let area = self.terminal.size().expect("couldn't get terminal size");
